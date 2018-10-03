@@ -1,0 +1,5 @@
+terraform-version: 0.11.8
+project-name: TdkExample
+aws:
+  profile: tdkexample
+  region: eu-west-1

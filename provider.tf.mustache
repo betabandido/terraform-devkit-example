@@ -1,0 +1,29 @@
+data "aws_caller_identity" "current" {}
+
+locals {
+  profile    = "{{Profile}}"
+  region     = "{{Region}}"
+  env        = "{{Environment}}"
+  account_id = "${data.aws_caller_identity.current.account_id}"
+}
+
+provider "aws" {
+  profile = "${local.profile}"
+  region  = "${local.region}"
+}
+
+provider "template" {}
+provider "archive" {}
+
+terraform {
+  {{#LocalBackend}}backend "local" {}{{/LocalBackend}}
+  {{^LocalBackend}}backend "s3" {
+    bucket         = "{{ProjectName}}-{{Environment}}-state"
+    key            = "{{ProjectAcronym}}-{{Environment}}.tfstate"
+    dynamodb_table = "{{ProjectAcronym}}-{{Environment}}-lock-table"
+    encrypt        = false
+    profile        = "{{Profile}}"
+    region         = "{{Region}}"
+  }
+  {{/LocalBackend}}
+}

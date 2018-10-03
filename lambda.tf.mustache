@@ -1,0 +1,46 @@
+resource "aws_iam_role" "iam_for_lambda" {
+  name = "tdkexample_iam_for_lambda"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+data "archive_file" "init" {
+  type        = "zip"
+  source_file = "../../tdkexample.py"
+  output_path = "tdkexample_lambda.zip"
+}
+
+resource "aws_lambda_function" "double_lambda" {
+  filename         = "tdkexample_lambda.zip"
+  function_name    = "tdkexample_lambda"
+  role             = "${aws_iam_role.iam_for_lambda.arn}"
+  handler          = "tdkexample.double"
+  source_code_hash = "${base64sha256(file("tdkexample_lambda.zip"))}"
+  runtime          = "python3.6"
+}
+
+resource "aws_lambda_permission" "allow_api_gateway" {
+  function_name = "${aws_lambda_function.double_lambda.function_name}"
+  statement_id  = "AllowExecutionFromApiGateway"
+  action        = "lambda:InvokeFunction"
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "arn:aws:execute-api:${local.region}:${local.account_id}:${aws_api_gateway_rest_api.api.id}/*/*"
+}
+
+output "hash" {
+    value = "${base64sha256(file("tdkexample_lambda.zip"))}"
+}
