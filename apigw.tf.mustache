@@ -34,6 +34,38 @@ EOF
   }
 }
 
+module "half_path" {
+  source = "github.com/vistaprint/TerraformModules?ref=v0.0.20//modules/api_path/path2"
+
+  api    = "${aws_api_gateway_rest_api.api.id}"
+  parent = "${aws_api_gateway_rest_api.api.root_resource_id}"
+  path   = ["half", "{value}"]
+}
+
+module "half_method" {
+  source = "github.com/vistaprint/TerraformModules?ref=v0.0.20//modules/api_method"
+  api    = "${aws_api_gateway_rest_api.api.id}"
+  parent = "${element(module.half_path.path_resource_id, 1)}"
+
+  request = {
+    type = "AWS"
+    uri  = "arn:aws:apigateway:${local.region}:lambda:path/2015-03-31/functions/${aws_lambda_function.half_lambda.arn}/invocations"
+
+    template = <<EOF
+{
+  "value": "$input.params('value')"
+}    
+EOF
+  }
+
+  responses = {
+    "200" = {
+      selection_pattern = ""
+      template          = "$input.path('$')"
+    }
+  }
+}
+
 module "deployment" {
   source = "github.com/vistaprint/TerraformModules?ref=v0.0.20//modules/api_deployment"
   api    = "${aws_api_gateway_rest_api.api.id}"

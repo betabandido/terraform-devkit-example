@@ -41,3 +41,19 @@ resource "aws_lambda_permission" "allow_api_gateway" {
   source_arn    = "arn:aws:execute-api:${local.region}:${local.account_id}:${aws_api_gateway_rest_api.api.id}/*/*"
 }
 
+resource "aws_lambda_function" "half_lambda" {
+  filename         = "${data.archive_file.lambda.output_path}"
+  function_name    = "tdkexample_${local.env}_half_lambda"
+  role             = "${aws_iam_role.iam_for_lambda.arn}"
+  handler          = "tdkexample.half"
+  source_code_hash = "${data.archive_file.lambda.output_base64sha256}"
+  runtime          = "python3.6"
+}
+
+resource "aws_lambda_permission" "half_allow_api_gateway" {
+  function_name = "${aws_lambda_function.half_lambda.function_name}"
+  statement_id  = "AllowExecutionFromApiGateway"
+  action        = "lambda:InvokeFunction"
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "arn:aws:execute-api:${local.region}:${local.account_id}:${aws_api_gateway_rest_api.api.id}/*/*"
+}
