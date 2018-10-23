@@ -1,0 +1,48 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "execute-api:*",
+                "iam:GetRole",
+                "iam:ListInstanceProfilesForRole",
+                "iam:PassRole",
+                "apigateway:*",
+                "iam:CreateRole",
+                "iam:DeleteRole",
+                "iam:UpdateRole"
+            ],
+            "Resource": [
+                "arn:aws:iam::<ACCOUNT_ID>:role/tdkexample*",
+                "arn:aws:execute-api:eu-west-1:<ACCOUNT_ID>:*/*/*/*",
+                "arn:aws:apigateway:eu-west-1::*"
+            ]
+        },
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": "iam:ListRoles",
+            "Resource": "*"
+        },
+        {
+            "Sid": "VisualEditor2",
+            "Effect": "Allow",
+            "Action": "s3:*",
+            "Resource": "arn:aws:s3:::tdkexample*"
+        },
+        {
+            "Sid": "VisualEditor3",
+            "Effect": "Allow",
+            "Action": "dynamodb:*",
+            "Resource": "arn:aws:dynamodb:eu-west-1:<ACCOUNT_ID>:table/tdkexample*"
+        },
+        {
+            "Sid": "VisualEditor4",
+            "Effect": "Allow",
+            "Action": "lambda:*",
+            "Resource": "arn:aws:lambda:eu-west-1:<ACCOUNT_ID>:function:tdkexample*"
+        }
+    ]
+}
